@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sultan's Password Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #4f46e5;
+            --text-color: #1f2937;
+            --bg-color: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        /* Header Styles */
+        .header {
+            background: var(--primary-color);
+            color: var(--white);
+            padding: 1rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo i {
+            font-size: 1.8rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            max-width: 1200px;
+            margin: 6rem auto 2rem;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .info-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .info-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+
+        /* Generator Container */
+        .container {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .container h2 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .wrapper {
+            position: relative;
+            background: var(--bg-color);
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin: 1rem 0;
+        }
+
+        .wrapper input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 2px solid transparent;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .wrapper input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .copy-btn {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--primary-color);
+            color: var(--white);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: var(--secondary-color);
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .option-item:hover {
+            background: var(--bg-color);
+        }
+
+        .option-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary-color);
+        }
+
+        .strength-indicator {
+            background: var(--bg-color);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .length-control {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        #lengthSlider {
+            flex: 1;
+            height: 6px;
+            appearance: none;
+            background: #ddd;
+            border-radius: 3px;
+            outline: none;
+        }
+
+        #lengthSlider::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #lengthSlider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .strength-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: #ddd;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .strength-bar div {
+            height: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            background: var(--primary-color);
+            color: var(--white);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .generate-btn:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--text-color);
+            color: var(--white);
+            padding: 3rem 0 1.5rem;
+            margin-top: 4rem;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-section h4 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section ul li a {
+            color: #ccc;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section ul li a:hover {
+            color: var(--primary-color);
+        }
+
+        .developer-info {
+            text-align: center;
+            padding: 1.5rem 0;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 2rem;
+        }
+
+        .developer-info p {
+            color: #ccc;
+        }
+
+        .heart {
+            color: #ff4d4d;
+            animation: heartbeat 1s infinite;
+        }
+
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 968px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 0.5rem;
+            }
+
+            .logo {
+                font-size: 1.2rem;
+            }
+
+            .main-content {
+                margin-top: 4rem;
+                padding: 0 1rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav-container">
+            <div class="logo">
+                🔒 SecurePass Pro
+            </div>
+            <div class="nav-links">
+                <a href="#home">Home</a>
+                <a href="#features">Features</a>
+                <a href="#about">About</a>
+                <a href="#contact">Contact</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="content-left">
+            <div class="info-card">
+                <h3>🛡️ Why Choose Our Password Generator?</h3>
+                <p>Generate ultra-secure passwords instantly with our advanced algorithm. Protect your accounts with unique, unbreakable combinations.</p>
+            </div>
+            <div class="info-card">
+                <h3>🔐 Security Features</h3>
+                <p>• Military-grade encryption<br>
+                   • Real-time strength analysis<br>
+                   • Customizable parameters<br>
+                   • No password storage</p>
+            </div>
+        </div>
+        
+        <div class="content-right">
+            <div class="container">
+                <h2>Password Generator</h2>
+                <div class="wrapper">
+                    <input type="text" id="passwordOutput" readonly>
+                    <button id="copyBtn" class="copy-btn">Copy</button>
+                </div>
+                <div class="options">
+                    <label class="option-item">
+                        <input type="checkbox" id="uppercase" checked>
+                        Uppercase (A-Z)
+                    </label>
+                    <label class="option-item">
+                        <input type="checkbox" id="lowercase" checked>
+                        Lowercase (a-z)
+                    </label>
+                    <label class="option-item">
+                        <input type="checkbox" id="numbers" checked>
+                        Numbers (0-9)
+                    </label>
+                    <label class="option-item">
+                        <input type="checkbox" id="symbols">
+                        Symbols (!@#$%^&*)
+                    </label>
+                </div>
+                <div class="strength-indicator">
+                    <div class="length-control">
+                        <span>Length:</span>
+                        <input type="range" id="lengthSlider" min="8" max="30" value="12">
+                        <span id="lengthValue">12</span>
+                    </div>
+                    <p>Strength: <span id="strengthText">Medium</span></p>
+                    <div class="strength-bar">
+                        <div id="strengthBar"></div>
+                    </div>
+                </div>
+                <button class="generate-btn">Generate Password</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#about">About</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Resources</h4>
+                <ul>
+                    <li><a href="#blog">Blog</a></li>
+                    <li><a href="#faq">FAQ</a></li>
+                    <li><a href="#support">Support</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="#privacy">Privacy Policy</a></li>
+                    <li><a href="#terms">Terms of Service</a></li>
+                    <li><a href="#cookies">Cookie Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="developer-info">
+            <p>Developed with <span class="heart">♥️</span> by Oriby Team</p>
+        </div>
+    </footer>
+
+    <script>
+        const lengthSlider = document.getElementById('lengthSlider');
+        const lengthValue = document.getElementById('lengthValue');
+        const passwordOutput = document.getElementById('passwordOutput');
+        const copyBtn = document.getElementById('copyBtn');
+        const strengthBar = document.getElementById('strengthBar');
+        const strengthText = document.getElementById('strengthText');
+        const generateBtn = document.querySelector('.generate-btn');
+
+        const characters = {
+            uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+            lowercase: 'abcdefghijklmnopqrstuvwxyz',
+            numbers: '0123456789',
+            symbols: '!@#$%^&*()_+-=[]{}|;:,.<>?'
+        };
+
+        // Enhanced password generation with improved randomization
+        function getRandomChar(str) {
+            const randomBuffer = new Uint32Array(1);
+            window.crypto.getRandomValues(randomBuffer);
+            return str.charAt(randomBuffer[0] % str.length);
+        }
+
+        lengthSlider.addEventListener('input', () => {
+            lengthValue.textContent = lengthSlider.value;
+            generatePassword();
+        });
+
+        generateBtn.addEventListener('click', generatePassword);
+        copyBtn.addEventListener('click', copyPassword);
+
+        function generatePassword() {
+            let charset = '';
+            let password = '';
+            
+            if(document.getElementById('uppercase').checked) charset += characters.uppercase;
+            if(document.getElementById('lowercase').checked) charset += characters.lowercase;
+            if(document.getElementById('numbers').checked) charset += characters.numbers;
+            if(document.getElementById('symbols').checked) charset += characters.symbols;
+
+            if(charset === '') {
+                alert('Please select at least one character type');
+                return;
+            }
+
+            const length = parseInt(lengthSlider.value);
+            
+            // Enhanced security with crypto API
+            const array = new Uint32Array(length);
+            window.crypto.getRandomValues(array);
+            
+            for(let i = 0; i < length; i++) {
+                password += charset.charAt(array[i] % charset.length);
+            }
+
+            passwordOutput.value = password;
+            updateStrengthIndicator(password);
+
+            // Animate the generation
+            generateBtn.style.transform = 'scale(0.95)';
+            setTimeout(() => generateBtn.style.transform = 'scale(1)', 100);
+        }
+
+        function updateStrengthIndicator(password) {
+            const length = password.length;
+            const hasUpper = /[A-Z]/.test(password);
+            const hasLower = /[a-z]/.test(password);
+            const hasNumber = /[0-9]/.test(password);
+            const hasSymbol = /[^A-Za-z0-9]/.test(password);
+            
+            const variety = [hasUpper, hasLower, hasNumber, hasSymbol].filter(Boolean).length;
+            
+            let strength = 0;
+            if(length >= 12) strength += 25;
+            if(length >= 16) strength += 25;
+            strength += variety * 12.5;
+
+            strengthBar.style.width = strength + '%';
+            strengthBar.style.background = strength <= 25 ? '#ff4747' : 
+                                         strength <= 50 ? '#ffd32a' : 
+                                         strength <= 75 ? '#2eb85c' : '#1ea7fd';
+
+            strengthText.textContent = strength <= 25 ? 'Weak' :
+                                     strength <= 50 ? 'Medium' :
+                                     strength <= 75 ? 'Strong' : 'Very Strong';
+        }
+
+        function copyPassword() {
+            if(!passwordOutput.value) return;
+            
+            navigator.clipboard.writeText(passwordOutput.value).then(() => {
+                copyBtn.textContent = 'Copied!';
+                copyBtn.style.background = '#2eb85c';
+                setTimeout(() => {
+                    copyBtn.textContent = 'Copy';
+                    copyBtn.style.background = '';
+                }, 1500);
+            });
+        }
+
+        // Generate initial password
+        generatePassword();
+
+        // Add smooth scroll for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
